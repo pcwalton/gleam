@@ -228,6 +228,22 @@ pub fn tex_image_2d(target: GLenum,
     }
 }
 
+// FIXME: Does not verify buffer size -- unsafe!
+pub fn tex_sub_image_2d(target: GLenum,
+                        level: GLint,
+                        xoffset: GLint,
+                        yoffset: GLint,
+                        width: GLsizei,
+                        height: GLsizei,
+                        format: GLenum,
+                        ty: GLenum,
+                        data: &[u8]) {
+    unsafe {
+        let pdata = mem::transmute(data.as_ptr());
+        ffi::TexSubImage2D(target, level, xoffset, yoffset, width, height, format, ty, pdata);
+    }
+}
+
 #[inline]
 pub fn tex_parameter_i(target: GLenum, pname: GLenum, param: GLint) {
     unsafe {
@@ -243,6 +259,22 @@ pub fn framebuffer_texture_2d(target: GLenum,
                               level: GLint) {
     unsafe {
         ffi::FramebufferTexture2D(target, attachment, textarget, texture, level);
+    }
+}
+
+#[inline]
+pub fn vertex_attrib_pointer_u8(index: GLuint,
+                                 size: GLint,
+                                 normalized: bool,
+                                 stride: GLsizei,
+                                 offset: GLuint) {
+    unsafe {
+        ffi::VertexAttribPointer(index,
+                                 size,
+                                 ffi::UNSIGNED_BYTE,
+                                 normalized as GLboolean,
+                                 stride,
+                                 offset as *const GLvoid)
     }
 }
 
@@ -510,9 +542,44 @@ pub fn link_program(program: GLuint) {
 }
 
 #[inline]
+pub fn depth_mask(flag: bool) {
+    unsafe {
+        ffi::DepthMask(flag as GLboolean)
+    }
+}
+
+#[inline]
+pub fn stencil_mask(mask: GLuint) {
+    unsafe {
+        ffi::StencilMask(mask)
+    }
+}
+
+#[inline]
+pub fn stencil_func_separate(face: GLenum, func: GLenum, reference: GLint, mask: GLuint) {
+    unsafe {
+        ffi::StencilFuncSeparate(face, func, reference, mask)
+    }
+}
+
+#[inline]
+pub fn stencil_op_separate(face: GLenum, sfail: GLenum, dpfail: GLenum, dppass: GLenum) {
+    unsafe {
+        ffi::StencilOpSeparate(face, sfail, dpfail, dppass)
+    }
+}
+
+#[inline]
 pub fn clear_color(r: f32, g: f32, b: f32, a: f32) {
     unsafe {
         ffi::ClearColor(r, g, b, a);
+    }
+}
+
+#[inline]
+pub fn clear_depth(depth: f64) {
+    unsafe {
+        ffi::ClearDepth(depth);
     }
 }
 
